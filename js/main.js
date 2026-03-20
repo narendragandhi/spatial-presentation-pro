@@ -62,30 +62,32 @@ function initAnnotationCanvas() {
     aCtx.strokeStyle = '#00FF80';
     aCtx.lineWidth = 5;
     aCtx.shadowBlur = 15;
-    aCtx.shadowColor = '#00FF80';
-}
+    // State
+    var currentSlide = 0;
+    let isLocked = false; 
+    ...
+    function setSlide(index) {
+        if (isLocked) return;
+        isLocked = true;
 
-function setSlide(index) {
-    if (isLocked) return;
-    isLocked = true;
-    
-    playSound(440, 'square', 0.05); // Transition sound
-    aCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    
-    slides[currentSlide].classList.remove('active');
-    slides[currentSlide].classList.add('prev');
-    
-    currentSlide = (index + slides.length) % slides.length;
-    
-    slides[currentSlide].classList.remove('prev');
-    slides[currentSlide].classList.add('active');
-    
-    setTimeout(() => {
-        isLocked = false;
-        slides.forEach((s, i) => { if (i !== currentSlide) s.classList.remove('prev'); });
-    }, 800);
-}
+        playSound(440, 'square', 0.05); // Transition sound
+        aCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
+        slides[currentSlide].classList.remove('active');
+        slides[currentSlide].classList.add('prev');
+
+        currentSlide = (index + slides.length) % slides.length;
+
+        slides[currentSlide].classList.remove('prev');
+        slides[currentSlide].classList.add('active');
+
+        setTimeout(() => {
+            isLocked = false;
+            slides.forEach((s, i) => { if (i !== currentSlide) s.classList.remove('prev'); });
+        }, 800);
+    }
+    window.setSlide = setSlide;
+    window.currentSlide = currentSlide;
 function isIndexOnly(landmarks) {
     const iUp = landmarks[8].y < landmarks[6].y - 0.05;
     const mUp = landmarks[12].y < landmarks[10].y - 0.05;
