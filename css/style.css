@@ -218,3 +218,75 @@ body {
 }
 
 .nav-hint.active { opacity: 1; color: #00DDEE; border-color: #00DDEE; }
+
+/* AI Agent Panel (WebMCP Demo) */
+#agent-panel {
+    position: absolute;
+    bottom: 30px;
+    left: 30px;
+    width: 280px;
+    height: 240px;
+    background: rgba(0, 20, 30, 0.85);
+    border: 1px solid #00DDEE;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 30px rgba(0, 221, 238, 0.2);
+}
+
+.panel-header {
+    background: rgba(0, 221, 238, 0.2);
+    padding: 8px 12px;
+    font-size: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    letter-spacing: 2px;
+    border-bottom: 1px solid rgba(0, 221, 238, 0.3);
+    display: flex;
+    justify-content: space-between;
+}
+
+.blink { animation: blink-animation 1s steps(5, start) infinite; color: #00FF80; }
+@keyframes blink-animation { to { visibility: hidden; } }
+
+.agent-actions {
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.agent-actions button {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 9px;
+    padding: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.agent-actions button:hover { background: rgba(0, 221, 238, 0.2); border-color: #00DDEE; }
+
+#agent-log {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background: rgba(0,0,0,0.3);
+}
+
+.log-entry { padding-left: 10px; border-left: 2px solid rgba(255,255,255,0.2); opacity: 0.8; }
+.log-entry.agent { border-color: #00FF80; color: #00FF80; }
+.log-entry.system { border-color: #00DDEE; color: #00DDEE; }
+.log-entry.action { border-color: #fff; font-weight: 700; }
+

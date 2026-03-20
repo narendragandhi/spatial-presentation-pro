@@ -85,6 +85,19 @@
         <div class="nav-hint left">PREV</div>
         <div class="nav-hint right">NEXT</div>
     </div>
+
+    <!-- AI Agent Simulation Panel (WebMCP Demo) -->
+    <div id="agent-panel">
+        <div class="panel-header">AI AGENT SIMULATOR <span class="blink">●</span></div>
+        <div class="agent-actions">
+            <button onclick="WebMCP.callTool('presentation:next')">AGENT: NEXT</button>
+            <button onclick="WebMCP.callTool('presentation:prev')">AGENT: PREV</button>
+            <button onclick="simulateContentAudit()">AGENT: AUDIT CONTENT</button>
+        </div>
+        <div id="agent-log">
+            <div class="log-entry system">WebMCP Bridge: Secure</div>
+        </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>

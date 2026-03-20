@@ -13,14 +13,17 @@
          */
         init() {
             console.log('[WebMCP] Initializing Spatial Console Tools...');
+            this.logElement = document.getElementById('agent-log');
             
             // Register tools that an AI agent can discover
             this.tools = {
                 'presentation:next': {
                     description: 'Advance to the next slide',
                     execute: () => {
+                        this.log('Tool: presentation:next', 'agent');
                         if (window.setSlide && typeof window.currentSlide !== 'undefined') {
                             window.setSlide(window.currentSlide + 1);
+                            this.log('Action: Slide Advanced', 'action');
                             return { success: true, message: 'Advanced to next slide' };
                         }
                         return { success: false, message: 'Presentation not initialized' };
@@ -29,8 +32,10 @@
                 'presentation:prev': {
                     description: 'Go back to the previous slide',
                     execute: () => {
+                        this.log('Tool: presentation:prev', 'agent');
                         if (window.setSlide && typeof window.currentSlide !== 'undefined') {
                             window.setSlide(window.currentSlide - 1);
+                            this.log('Action: Slide Reversed', 'action');
                             return { success: true, message: 'Returned to previous slide' };
                         }
                         return { success: false, message: 'Presentation not initialized' };
@@ -39,30 +44,18 @@
                 'presentation:get_content': {
                     description: 'Get the content of the current slide',
                     execute: () => {
+                        this.log('Tool: presentation:get_content', 'agent');
                         const activeSlide = document.querySelector('.slide.active');
                         if (activeSlide) {
-                            return {
+                            const data = {
                                 success: true,
-                                slideNumber: activeSlide.querySelector('.slide-num')?.textContent,
                                 title: activeSlide.querySelector('h1')?.textContent,
-                                content: activeSlide.querySelector('p')?.textContent,
                                 bulletPoints: Array.from(activeSlide.querySelectorAll('.points li')).map(li => li.textContent)
                             };
+                            this.log(`Audit: Found "${data.title}"`, 'action');
+                            return data;
                         }
                         return { success: false, message: 'No active slide found' };
-                    }
-                },
-                'presentation:annotate': {
-                    description: 'Add a virtual annotation to the slide',
-                    parameters: {
-                        x: 'number (0-1)',
-                        y: 'number (0-1)',
-                        text: 'string'
-                    },
-                    execute: (params) => {
-                        console.log('[WebMCP] Remote Annotation:', params);
-                        // Future implementation: Add text labels to the canvas
-                        return { success: true, message: 'Annotation queued' };
                     }
                 }
             };
@@ -71,16 +64,47 @@
         },
 
         /**
+         * Internal logging for the Demo Panel
+         */
+        log(message, type = 'system') {
+            if (!this.logElement) return;
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            this.logElement.appendChild(entry);
+            this.logElement.scrollTop = this.logElement.scrollHeight;
+        },
+
+        /**
          * Call a tool programmatically (simulating agent interaction)
          */
         callTool(name, params) {
             const tool = this.tools[name];
             if (tool) {
-                console.log(`[WebMCP] Agent executing tool: ${name}`, params);
                 return tool.execute(params);
             }
             return { success: false, message: `Tool ${name} not found` };
         }
+    };
+
+    /**
+     * Simulation: Content Audit
+     * Shows how an agent might "scrape" and "understand" the page using WebMCP tools
+     */
+    window.simulateContentAudit = async () => {
+        WebMCP.log('Agent initiating content audit...', 'system');
+        
+        // 1. Get current content
+        const content = WebMCP.callTool('presentation:get_content');
+        
+        // 2. "Analyze" content (Simulated delay)
+        WebMCP.log(`Agent analyzed: ${content.bulletPoints.length} points found`, 'system');
+        
+        // 3. Move to next slide to continue audit
+        setTimeout(() => {
+            WebMCP.callTool('presentation:next');
+            WebMCP.log('Audit Step 1 Complete', 'system');
+        }, 1000);
     };
 
     window.WebMCP = WebMCP;
