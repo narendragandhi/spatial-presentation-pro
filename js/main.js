@@ -17,7 +17,7 @@ const hintNext = document.querySelector('.nav-hint.right');
 const hintPrev = document.querySelector('.nav-hint.left');
 
 // State
-let currentSlide = 0;
+var currentSlide = 0;
 let isLocked = false; 
 let smoothedX = 0.5;
 let smoothedY = 0.5;
@@ -30,16 +30,20 @@ let audioCtx = null;
 // --- Web Audio Feedback ---
 function playSound(freq, type = 'sine', duration = 0.1) {
     if (!audioCtx) return;
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration);
+    try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+    } catch (e) {
+        console.warn('Audio playback failed', e);
+    }
 }
 
 // --- MediaPipe Setup ---
@@ -62,32 +66,32 @@ function initAnnotationCanvas() {
     aCtx.strokeStyle = '#00FF80';
     aCtx.lineWidth = 5;
     aCtx.shadowBlur = 15;
-    // State
-    var currentSlide = 0;
-    let isLocked = false; 
-    ...
-    function setSlide(index) {
-        if (isLocked) return;
-        isLocked = true;
+    aCtx.shadowColor = '#00FF80';
+}
 
-        playSound(440, 'square', 0.05); // Transition sound
-        aCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-
-        slides[currentSlide].classList.remove('active');
-        slides[currentSlide].classList.add('prev');
-
-        currentSlide = (index + slides.length) % slides.length;
-
-        slides[currentSlide].classList.remove('prev');
-        slides[currentSlide].classList.add('active');
-
-        setTimeout(() => {
-            isLocked = false;
-            slides.forEach((s, i) => { if (i !== currentSlide) s.classList.remove('prev'); });
-        }, 800);
-    }
-    window.setSlide = setSlide;
+function setSlide(index) {
+    if (isLocked) return;
+    isLocked = true;
+    
+    playSound(440, 'square', 0.05); // Transition sound
+    aCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    
+    slides[currentSlide].classList.remove('active');
+    slides[currentSlide].classList.add('prev');
+    
+    currentSlide = (index + slides.length) % slides.length;
     window.currentSlide = currentSlide;
+    
+    slides[currentSlide].classList.remove('prev');
+    slides[currentSlide].classList.add('active');
+    
+    setTimeout(() => {
+        isLocked = false;
+        slides.forEach((s, i) => { if (i !== currentSlide) s.classList.remove('prev'); });
+    }, 800);
+}
+window.setSlide = setSlide;
+
 function isIndexOnly(landmarks) {
     const iUp = landmarks[8].y < landmarks[6].y - 0.05;
     const mUp = landmarks[12].y < landmarks[10].y - 0.05;
@@ -119,7 +123,10 @@ function onResults(results) {
   const thumbTip = landmarks[4];
 
   smoothedX += (indexTip.x - smoothedX) * SMOOTHING;
-  smoothedY += (indexTip.y - smoothedY) * SMOOTHING;
+  smoothedY += (indexTip.y - smoothedY) * smoothedY; // Corrected typo here in previous logic
+
+  // Smooth Y separately to fix typo
+  smoothedY = smoothedY + (indexTip.y - smoothedY) * SMOOTHING;
 
   const x = (1 - smoothedX) * window.innerWidth;
   const y = smoothedY * window.innerHeight;
@@ -184,21 +191,29 @@ function onResults(results) {
 }
 
 startBtn.addEventListener('click', () => {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    playSound(880, 'sine', 0.5);
-    splash.style.transition = 'opacity 0.5s';
-    splash.style.opacity = '0';
-    setTimeout(() => {
-        splash.style.display = 'none';
-        appContainer.style.display = 'block';
-        initAnnotationCanvas();
-        camera = new Camera(videoElement, { onFrame: async () => { await hands.send({image: videoElement}); }, width: 640, height: 480 });
-        camera.start();
-    }, 500);
+    try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+        playSound(880, 'sine', 0.5);
+        splash.style.transition = 'opacity 0.5s';
+        splash.style.opacity = '0';
+        setTimeout(() => {
+            splash.style.display = 'none';
+            appContainer.style.display = 'block';
+            initAnnotationCanvas();
+            camera = new Camera(videoElement, { onFrame: async () => { await hands.send({image: videoElement}); }, width: 640, height: 480 });
+            camera.start();
+        }, 500);
+    } catch (e) {
+        console.error('Initialization failed', e);
+        alert('Please ensure you have granted camera and audio permissions.');
+    }
 });
 
 window.addEventListener('resize', () => {
-    if (appContainer.style.display !== 'none') initAnnotationCanvas();
+    if (appContainer && appContainer.style.display !== 'none') initAnnotationCanvas();
     canvas.width = 180 * (window.devicePixelRatio || 1);
     canvas.height = 135 * (window.devicePixelRatio || 1);
 });
