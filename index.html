@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Spatial Presentation Console Pro</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Splash Screen -->
+  <div id="splash-screen">
+    <div class="hero">
+        <h1>Spatial Console <span class="pro-tag">PRO</span></h1>
+        <p>Touchless Presentation Interface v2.0</p>
+        <button id="start-btn">INITIALIZE SYSTEM</button>
+    </div>
+  </div>
+
+  <div id="app-container" style="display:none">
+    <!-- Camera PIP -->
+    <video id="input_video" playsinline style="display:none"></video>
+    <div id="camera-pip">
+        <canvas id="output_canvas"></canvas>
+        <div id="tracking-status">LINKED</div>
+    </div>
+
+    <!-- Laser & Interaction -->
+    <div id="laser-pointer"></div>
+    <div id="spotlight"></div>
+
+    <!-- Presentation Stage -->
+    <div id="presentation-stage">
+      <canvas id="annotation-canvas"></canvas>
+      <div id="slide-deck">
+        <div class="slide active" id="slide-1">
+          <div class="slide-num">01 / 03</div>
+          <div class="content">
+            <h1>The Future of Spatial Computing</h1>
+            <p>Moving beyond the keyboard and mouse into natural interaction spaces.</p>
+            <ul class="points">
+                <li>Non-contact interfaces</li>
+                <li>Intuitive gestural language</li>
+                <li>Zero-latency feedback loops</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide" id="slide-2">
+          <div class="slide-num">02 / 03</div>
+          <div class="content">
+            <h1>Architecture: The Spatial Stack</h1>
+            <p>Our hybrid approach to low-latency gesture detection.</p>
+            <div class="box-container">
+                <div class="box">Input: MediaPipe</div>
+                <div class="box">Logic: Heuristic Mapping</div>
+                <div class="box">View: Hardware Accelerated DOM</div>
+            </div>
+          </div>
+        </div>
+        <div class="slide" id="slide-3">
+          <div class="slide-num">03 / 03</div>
+          <div class="content">
+            <h1>Core Market Use Cases</h1>
+            <p>Where this technology provides immediate ROI.</p>
+            <ul class="points">
+                <li>Professional Presentations</li>
+                <li>Sterile Environments (Surgery/Labs)</li>
+                <li>Accessibility & Rehabilitation</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gesture Legend -->
+    <div id="gesture-legend">
+        <div class="gesture-item"><span>☝️</span> Point to Aim</div>
+        <div class="gesture-item"><span>✌️</span> Victory to Draw</div>
+        <div class="gesture-item"><span>👌</span> Pinch to Next</div>
+        <div class="gesture-item"><span>👋</span> Wave to Prev</div>
+    </div>
+
+    <!-- Navigation Overlay -->
+    <div id="nav-overlay">
+        <div class="nav-hint left">PREV</div>
+        <div class="nav-hint right">NEXT</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
